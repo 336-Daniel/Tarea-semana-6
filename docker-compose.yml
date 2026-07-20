@@ -13,7 +13,7 @@ services:
     volumes:
       - ./keycloak-data:/var/lib/postgresql/data
     networks:
-      - appointments-network
+      - Booking-network
 
   #servicio de keycloack
   keycloak:
@@ -33,7 +33,7 @@ services:
     depends_on:
       - postgres-keycloak
     networks:
-      - appointments-network
+      - Booking-network
 
 #base de datos servicio ClassBooking
   postgrest-ClassBooking:
@@ -46,9 +46,28 @@ services:
     ports:
       - "5433:5432"
     networks:
-      - appointments-network
+      - Booking-network
+
+
+  classbooking-service:
+    build:
+      context: ./ClassBooking-service
+      dockerfile: Dockerfile
+    container_name: classbooking-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgrest-ClassBooking:5432/ClassBooking_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Uisrael.
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/gym-system
+    depends_on:
+      - postgrest-ClassBooking
+      - keycloak
+    networks:
+      - Booking-network
 
 
 networks:
-  appointments-network:
+  Booking-network:
     driver: bridge
